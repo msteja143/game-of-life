@@ -1,6 +1,5 @@
 pipeline {
     agent { label 'LABEL2' }
-    triggers { cron ('*/15 * * * *') }
     triggers { pollscm ('*/20 * * * *') }
     stages {
         stage('vcs') {
