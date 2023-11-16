@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'LABEL2' }
+    agent { label 'LABEL1' }
     triggers { pollSCM ('*/30 * * * *') }
     stages {
         stage('vcs') {
