@@ -1,6 +1,6 @@
 pipeline {
     agent { label 'LABEL2' }
-    triggers { pollSCM ('*/20 * * * *') }
+    triggers { pollSCM ('*/30 * * * *') }
     stages {
         stage('vcs') {
             steps {
@@ -9,6 +9,9 @@ pipeline {
             }
         }
         stage('package') {
+            tools {
+                jdk 'JDK-11'
+            }
             steps {
                 sh 'mvn package'
             }
