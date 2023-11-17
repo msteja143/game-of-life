@@ -8,7 +8,7 @@ pipeline {
                     branch: 'declarative'
             }
         }
-        stage('package') {
+        stage('packagee') {
             tools {
                 jdk 'JDK-8'
             }
