@@ -1,19 +1,23 @@
 pipeline {
     agent { label 'LABEL2' }
-    triggers { pollSCM ('H/5 * * * *') }
+    triggers { pollSCM ('H/30 * * * *') }
+    parameters {
+
+        choice(name: 'MAVEN_GOAL', choices: ['package', 'install', 'clean'], description: 'Maven Goal')
+    }
     stages {
         stage('vcs') {
             steps {
                 git url: 'https://github.com/msteja143/game-of-life.git',
-                    branch: 'declarative'
+                    branch: 'parameter'
             }
         }
-        stage('packagee') {
+        stage('package') {
             tools {
                 jdk 'JDK-8'
             }
             steps {
-                sh 'mvn package'
+                sh "mvn ${params.MAVEN_GOAL}"
             }
         }
         stage('post build') {
