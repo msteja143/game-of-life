@@ -1,4 +1,4 @@
-node('LABEL1') {
+node('LABEL2') {
     stage('version control') {
         git url: 'https://github.com/msteja143/game-of-life.git',
             branch: 'master'
