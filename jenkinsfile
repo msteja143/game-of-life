@@ -1,32 +1,21 @@
-pipeline {
-    agent { label 'LABEL2' }
-    triggers { pollSCM ('H/5 * * * *') }
-    parameters {
-        string(name: 'MAVEN_GOAL', defaultValue: 'package', description: 'Maven Goal')
-        choice(name: 'MAVEN_GOAL', choices: ['package', 'install', 'clean'], description: 'Maven Goal')
+node('LABEL2') {
+    stage('version control') {
+        git url: 'https://github.com/msteja143/game-of-life.git',
+            branch: 'master'
     }
-    stages {
-        stage('vcs') {
-            steps {
-                git url: 'https://github.com/msteja143/game-of-life.git',
-                    branch: 'parameter'
-            }
-        }
-        stage('package') {
-            tools {
-                jdk 'JDK-8'
-            }
-            steps {
-                sh "mvn ${params.MAVEN_GOAL}"
-            }
-        }
-        stage('post build') {
-            steps {
-                archiveArtifacts artifacts: '**/target/gameoflife.war',
-                                 onlyIfSuccessful: true
-                junit testResults: '**/surefire-reports/TEST-*.xml'
-            }
-              post {
+    stage('build the code') {
+        sh 'export PATH="/usr/lib/jvm/java-1.8.0-openjdk-amd64/bin:$PATH" && mvn package'
+    }
+    stage('archive the artifacts') {
+        archiveArtifacts onlyIfSuccessful: true,
+            artifacts: '**/target/gameoflife.war',
+            allowEmptyArchive: false
+    }
+    stage('show the test results') {
+        junit testResults: '**/surefire-reports/TEST-*.xml',
+              allowEmptyResults: true
+    }
+     post {
          success {
             mail subject: "Jenkins Build of ${JOB_NAME} with id ${BUILD_ID} is success",
                 body: "Use this URL ${BUILD_URL} for more info",
@@ -39,8 +28,5 @@ pipeline {
                 to: 'sandbox.smtp.mailtrap.io',
                 from: 'tejaarts42@gmail.com'
                  }
-              }
-          }
         }
-      }
-      
+            }
