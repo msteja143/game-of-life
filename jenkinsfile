@@ -2,7 +2,8 @@ pipeline {
     agent { label 'LABEL2' }
     triggers { pollSCM ('H/5 * * * *') }
     parameters {
-        string(name: 'MAVEN_GOAL', defaultValue: 'package' 'install', description: 'Maven Goal')
+        string(name: 'MAVEN_GOAL', defaultValue: 'package', description: 'Maven Goal')
+        choice(name: 'MAVEN_GOAL', choices: ['package', 'install', 'clean'], description: 'Maven Goal')
     }
     stages {
         stage('vcs') {
