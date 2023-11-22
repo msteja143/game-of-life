@@ -1,32 +1,35 @@
-node('LABEL2') {
-    stage('version control') {
-        git url: 'https://github.com/msteja143/game-of-life.git',
-            branch: 'master'
-    }
-    stage('build the code') {
-        sh 'export PATH="/usr/lib/jvm/java-1.8.0-openjdk-amd64/bin:$PATH" && mvn package'
-    }
-    stage('archive the artifacts') {
-        archiveArtifacts onlyIfSuccessful: true,
-            artifacts: '**/target/gameoflife.war',
-            allowEmptyArchive: false
-    }
-    stage('show the test results') {
-        junit testResults: '**/surefire-reports/TEST-*.xml',
-              allowEmptyResults: true
-    }
-     post {
-         success {
-            mail subject: "Jenkins Build of ${JOB_NAME} with id ${BUILD_ID} is success",
-                body: "Use this URL ${BUILD_URL} for more info",
-                to: 'sandbox.smtp.mailtrap.io',
-                from: 'tejaarts42@gmail.com'
-        }
-        failure {
-            mail subject: "Jenkins Build of ${JOB_NAME} with id ${BUILD_ID} is failed",
-                body: "Use this URL ${BUILD_URL} for more info",
-                to: 'sandbox.smtp.mailtrap.io',
-                from: 'tejaarts42@gmail.com'
-                 }
-        }
+pipeline {
+    agent { label 'LABEL4' }
+    triggers { pollSCM ('H/5 * * * *') }
+    stages {
+        stage('vcs') {
+            steps {
+                git url: 'https://github.com/msteja143/game-of-life.git',
+                    branch: 'sonarcube'
             }
+        }
+        stage('packagee') {
+            tools {
+                jdk 'JDK-8'
+            }
+            steps {
+                sh 'mvn package'
+            }
+        }
+        stage('sonar analysis') {
+            steps {
+                // performing sonarqube analysis with "withSonarQubeENV(<Name of Server configured in Jenkins>)"
+                withSonarQubeEnv('SONARCUBE') {
+                    sh 'mvn clean package sonar:sonar -Dsonar.organization=springpetclinic1'
+                }
+            }
+        }
+        stage('post build') {
+            steps {
+                archiveArtifacts artifacts: '**/target/gameoflife.war',
+                                 onlyIfSuccessful: true
+                junit testResults: '**/surefire-reports/TEST-*.xml'
+            }
+        }
+    }
+}
