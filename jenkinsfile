@@ -24,12 +24,5 @@ pipeline {
                 }
             }
         }
-        stage('post build') {
-            steps {
-                archiveArtifacts artifacts: '**/target/*',
-                                 onlyIfSuccessful: true
-                junit testResults: '**/surefire-reports/TEST-*.xml'
-            }
-        }
-    }
+
 }
